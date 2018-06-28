@@ -1,6 +1,11 @@
 package api
 
 import (
+	"encoding/json"
+	"log"
+	"net/http"
+	"time"
+
 	"github.com/moosebot/plex-rek/server/internal/config"
 )
 
@@ -56,15 +61,56 @@ type TvShow struct {
 	FirstAirDate      string
 }
 
+var httpClient = &http.Client{Timeout: 10 * time.Second}
+
 // Search will perform a search on TheMovieDb's entire repository, including movies, tv shows, and people
 func Search(query string) SearchResults {
 	var config = config.GetConfig()
+	req, err := http.NewRequest("GET", config.TheMovieDb.BaseURL+"/search/multi", nil)
+	if err != nil {
+		log.Fatal(err)
+	}
 
-	var movies = make([]Movie, 0)
-	movies = append(movies, Movie{Title: "Animal Kingdom", Overview: "Following the death of his mother, J finds himself living with his estranged family, under the watchful eye of his doting grandmother, Smurf, mother to the Cody boys. J quickly comes to believe that he is a player in this world. But, as he soon discovers, this world is far larger and more menacing than he could ever imagine. J finds himself at the center of a cold-blooded revenge plot that turns the family upside down.", PosterImagePath: config.TheMovieDb.ImageBaseURL + "/zhj8YPQKuRev5N3KoHacsPnF4mB.jpg", BackdropImagePath: config.TheMovieDb.ImageBaseURL + "/1V8C68OvU7IDjZO9GtfwfmHa8X7.jpg", ReleaseDate: "2010-06-03"})
+	q := req.URL.Query()
+	q.Add("api_key", config.TheMovieDb.APIKey)
+	q.Add("query", query)
+	req.URL.RawQuery = q.Encode()
 
-	var tvshows = make([]TvShow, 0)
-	tvshows = append(tvshows, TvShow{Name: "Animal Kingdom", Overview: "The series centers on 17-year-old Joshua \"J\" Cody, who moves in with his freewheeling relatives in their Southern California beach town after his mother dies of a heroin overdose. Headed by boot-tough matriarch Janine \"Smurf\" Cody and her right-hand Baz, who runs the business and calls the shots, the clan also consists of Pope, the oldest and most dangerous of the Cody boys; Craig, the tough and fearless middle son; and Deran, the troubled, suspicious \"baby\" of the family.", PosterImagePath: config.TheMovieDb.ImageBaseURL + "/yfeUKQPfhcemXBKKswq1KtxXFsQ.jpg", BackdropImagePath: config.TheMovieDb.ImageBaseURL + "/rcS7cbgRUS6E5Qnolzm05lF02eM.jpg", FirstAirDate: "2016-06-14"})
+	r, err := httpClient.Do(req)
+	if err != nil {
+		log.Fatal(err)
+	}
 
-	return SearchResults{Movies: movies, TvShows: tvshows}
+	var searchResponse TMDBSearchResponse
+	defer r.Body.Close()
+	json.NewDecoder(r.Body).Decode(&searchResponse)
+
+	var searchResults = SearchResults{}
+	for index := 0; index < searchResponse.TotalResults; index++ {
+		var result = searchResponse.Results[index]
+		log.Println(index)
+		if result.MediaType == "movie" {
+			searchResults.Movies = append(searchResults.Movies, Movie{
+				Title:             result.Title,
+				Overview:          result.Overview,
+				PosterImagePath:   config.TheMovieDb.ImageBaseURL + result.PosterPath,
+				BackdropImagePath: config.TheMovieDb.ImageBaseURL + result.BackdropPath,
+				ReleaseDate:       result.ReleaseDate,
+			})
+			continue
+		}
+
+		if result.MediaType == "tv" {
+			searchResults.TvShows = append(searchResults.TvShows, TvShow{
+				Name:              result.Name,
+				Overview:          result.Overview,
+				PosterImagePath:   config.TheMovieDb.ImageBaseURL + result.PosterPath,
+				BackdropImagePath: config.TheMovieDb.ImageBaseURL + result.BackdropPath,
+				FirstAirDate:      result.FirstAirDate,
+			})
+			continue
+		}
+	}
+
+	return searchResults
 }
