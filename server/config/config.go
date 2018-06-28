@@ -24,7 +24,7 @@ type TheMovieDbConfig struct {
 // GetConfig retrieves config information from config.toml file
 func GetConfig() Config {
 	_, workspacePath, _, _ := runtime.Caller(0)
-	var configFile = path.Join(path.Dir(workspacePath), "../../config.toml")
+	var configFile = path.Join(path.Dir(workspacePath), "./config.toml")
 	_, err := os.Stat(configFile)
 	if err != nil {
 		log.Fatal("Config file is missing: ", configFile)

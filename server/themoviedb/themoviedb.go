@@ -1,4 +1,4 @@
-package api
+package themoviedb
 
 import (
 	"encoding/json"
@@ -6,7 +6,7 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/moosebot/plex-rex/server/internal/config"
+	"github.com/moosebot/plex-rex/server/config"
 )
 
 // TMDBSearchResponse defines the results of the multi search of TheMovieDb

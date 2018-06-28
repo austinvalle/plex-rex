@@ -2,7 +2,7 @@ package main
 
 import (
 	"github.com/gin-gonic/gin"
-	"github.com/moosebot/plex-rex/server/internal/api"
+	"github.com/moosebot/plex-rex/server/themoviedb"
 )
 
 func main() {
@@ -16,7 +16,7 @@ func main() {
 			return
 		}
 
-		c.JSON(200, api.Search(query))
+		c.JSON(200, themoviedb.Search(query))
 	})
 	r.Run()
 }
