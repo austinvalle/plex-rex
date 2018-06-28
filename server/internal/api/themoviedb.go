@@ -88,7 +88,6 @@ func Search(query string) SearchResults {
 	var searchResults = SearchResults{}
 	for index := 0; index < searchResponse.TotalResults; index++ {
 		var result = searchResponse.Results[index]
-		log.Println(index)
 		if result.MediaType == "movie" {
 			searchResults.Movies = append(searchResults.Movies, Movie{
 				Title:             result.Title,
