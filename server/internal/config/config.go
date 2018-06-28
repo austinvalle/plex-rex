@@ -16,14 +16,15 @@ type Config struct {
 
 // TheMovieDbConfig defines the shape of themoviedb configuration
 type TheMovieDbConfig struct {
-	BaseURL string `toml:"base_url"`
-	APIKey  string `toml:"api_key"`
+	BaseURL      string `toml:"base_url"`
+	ImageBaseURL string `toml:"image_base_url"`
+	APIKey       string `toml:"api_key"`
 }
 
 // GetConfig retrieves config information from config.toml file
 func GetConfig() Config {
-	_, workspacePath, _, _ := runtime.Caller(1)
-	var configFile = path.Join(path.Dir(workspacePath), "./config.toml")
+	_, workspacePath, _, _ := runtime.Caller(0)
+	var configFile = path.Join(path.Dir(workspacePath), "../../config.toml")
 	_, err := os.Stat(configFile)
 	if err != nil {
 		log.Fatal("Config file is missing: ", configFile)
