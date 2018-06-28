@@ -2,7 +2,7 @@ package main
 
 import (
 	"github.com/gin-gonic/gin"
-	"github.com/moosebot/plex-rek/server/internal/api"
+	"github.com/moosebot/plex-rex/server/internal/api"
 )
 
 func main() {

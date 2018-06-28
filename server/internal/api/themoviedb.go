@@ -6,7 +6,7 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/moosebot/plex-rek/server/internal/config"
+	"github.com/moosebot/plex-rex/server/internal/config"
 )
 
 // TMDBSearchResponse defines the results of the multi search of TheMovieDb
