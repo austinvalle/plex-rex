@@ -36,3 +36,7 @@ yarn-error.log*
 
 # Ignore config for server
 /server/config/config.toml
+
+/server/debug
+
+.vscode
